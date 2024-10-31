@@ -56,7 +56,7 @@ print("Hello World!")
 
 
 # //* PART 7
-
+import random
 print("Welcome to Modulo!")
 
 number = int(input("Enter the number "))
@@ -64,3 +64,6 @@ if number % 2 == 0:
     print("Even number")
 else : 
     print("Odd number")
+    
+    
+random_number_0_to_10 = random.random() * 10
