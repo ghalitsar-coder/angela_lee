@@ -1,3 +1,1 @@
-guess = [""]* 5
-
-print(guess)
+print(lowercase_alphabet)
