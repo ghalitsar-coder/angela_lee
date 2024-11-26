@@ -1,0 +1,37 @@
+begin
+
+  for i := 1 to login_zq.RecordCount do
+  begin
+    a := login_zq['role'];
+    b := login_zq['username'];
+    c := login_zq['password'];
+
+    if ((uname.Text = b) and (pwd.Text = c) and (a = 'admin')) then
+    begin
+      z := 1;
+    end
+    else if ((uname.Text = b) and (pwd.Text = c) and (a = 'customer')) then
+    begin
+      z := 2;
+    end
+    else
+    begin
+      login_zq.Next;
+    end;
+
+    if z = 1 then
+    begin
+      MessageDlg('Selamat datang admin', mtInformation, [mbOK], 0);
+      FSign_in.Hide;
+      FAdmin.Show;
+      Break;  // Keluar dari loop jika sudah menemukan admin
+    end
+    else if z = 2 then
+    begin
+      MessageDlg('Selamat datang customer', mtInformation, [mbOK], 0);
+      FSign_in.Hide;
+      FCustomer.Show;
+      Break;  // Keluar dari loop jika sudah menemukan customer
+    end;
+  end;
+end;

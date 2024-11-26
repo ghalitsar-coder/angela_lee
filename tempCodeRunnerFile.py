@@ -1,1 +1,0 @@
-print(lowercase_alphabet)

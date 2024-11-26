@@ -1,0 +1,44 @@
+var
+  selectednrp: string;
+begin
+  if not ZConn.Connected then
+    ZConn.Connected := True;
+
+  // Ambil nilai nrp dari baris yang dipilih di SMDBGrnrp
+  selectednrp := mahasiswa_zq.FieldByName('nrp').AsString;
+
+  // Pastikan nrp tnrpak kosong
+  if selectednrp = '' then
+  begin
+    ShowMessage('nrp tnrpak boleh kosong atau data tnrpak dipilih!');
+    Exit;
+  end;
+
+  // Tampilkan nilai nrp untuk debugging
+  ShowMessage('nrp yang dipilih: ' + selectednrp);
+
+  // Hapus data berdasarkan nrp
+  mahasiswa_zq.SQL.Clear;
+  mahasiswa_zq.SQL.Add('DELETE FROM mahasiswa WHERE nrp = :nrp');
+  mahasiswa_zq.Params.ParamByName('nrp').AsString := selectednrp;
+
+  try
+    mahasiswa_zq.ExecSQL;
+    ShowMessage('Data berhasil dihapus!');
+  except
+    on E: Exception do
+      ShowMessage('Error: ' + E.Message);
+  end;
+
+  // Refresh data setelah penghapusan
+  mahasiswa_zq.Close;
+  mahasiswa_zq.SQL.Clear;
+  mahasiswa_zq.SQL.Add('SELECT * FROM mahasiswa');
+  mahasiswa_zq.Open;
+
+  // Kosongkan input setelah penghapusan
+  F_nrp.Clear;
+  F_nama.Clear;
+  F_alamat.Clear;
+  F_jns_kelamin.Clear;
+end;

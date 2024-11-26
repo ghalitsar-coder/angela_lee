@@ -1,0 +1,31 @@
+if not OriginSchool_zq.Active then
+  begin
+    OriginSchool_zq.SQL.Clear;
+    OriginSchool_zq.SQL.Add('SELECT * FROM origin_schools');
+    OriginSchool_zq.Open;
+  end;
+
+  if VarIsNull(DBLookupComboBox2.KeyValue) then
+  begin
+    ShowMessage('Silakan pilih sekolah terlebih dahulu.');
+    Exit;
+  end;
+
+
+  begin
+    schoolID := DBLookupComboBox2.KeyValue;
+
+    ShowMessage('KeyValue: ' + IntToStr(schoolID));
+  end;
+
+
+  if OriginSchool_zq.Locate('id', DBLookupComboBox2.KeyValue, []) then
+  begin
+  ZQuery1.SQL.Clear;
+  .....//code sebelumnya
+
+   end
+  else
+  begin
+    ShowMessage('Sekolah tidak ditemukan dengan ID: ' + VarToStr(DBLookupComboBox2.KeyValue));
+  end;

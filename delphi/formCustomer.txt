@@ -1,0 +1,186 @@
+unit customer;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, Mask, DBCtrls, ExtCtrls, SMDBCtrl, DB, Grids, DBGrids,
+  SMDBGrid, ZAbstractRODataset, ZAbstractDataset, ZDataset,
+  ZAbstractConnection, ZConnection, Buttons;
+
+type
+  TFCustomer = class(TForm)
+    ZConn: TZConnection;
+    mahasiswa_zq: TZQuery;
+    SMDBGrid1: TSMDBGrid;
+    Customer_ds: TDataSource;
+    SMDBNavigator1: TSMDBNavigator;
+    mahasiswa_zq: TZQuery;
+    SMDBGrid2: TSMDBGrid;
+    OriginSchool_ds: TDataSource;
+    SMDBNavigator2: TSMDBNavigator;
+    DBLookupComboBox1: TDBLookupComboBox;
+    DBLookupComboBox2: TDBLookupComboBox;
+    Label5: TLabel;
+    Label18: TLabel;
+    Label19: TLabel;
+    Label20: TLabel;
+    F_nama: TEdit;
+    F_alamat: TEdit;
+    F_no_telp: TEdit;
+    DBEdit1: TDBEdit;
+    DBEdit2: TDBEdit;
+    DBEdit3: TDBEdit;
+    Button2: TButton;
+    btn_save_customer: TButton;
+    Label1: TLabel;
+    Label2: TLabel;
+    Edit1: TEdit;
+    DBEdit5: TDBEdit;
+    Button3: TButton;
+    btn_save_origin_school: TButton;
+    mahasiswa_zqid: TIntegerField;
+    mahasiswa_zqid_origin_school: TIntegerField;
+    mahasiswa_zqnama: TStringField;
+    mahasiswa_zqalamat: TStringField;
+    mahasiswa_zqno_telp: TStringField;
+    mahasiswa_zqschoolname: TStringField;
+    BitBtn1: TBitBtn;
+    procedure btn_save_customerClick(Sender: TObject);
+    procedure btn_save_origin_schoolClick(Sender: TObject);
+    procedure logout(Sender: TObject);
+    procedure DBLookupComboBox2CloseUp(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  FCustomer: TFCustomer;
+
+implementation
+
+uses sign_in;
+
+{$R *.dfm}
+
+procedure TFCustomer.btn_save_customerClick(Sender: TObject);
+var
+  jurusanID:Integer;
+begin
+ if not ZConn.Connected then
+    ZConn.Connected := True;
+
+ if not mahasiswa_zq.Active then
+  begin
+    mahasiswa_zq.SQL.Clear;
+    mahasiswa_zq.SQL.Add('SELECT * FROM jurusan');
+    mahasiswa_zq.Open;
+  end;
+
+ if VarIsNull(DBLookupComboBox2.KeyValue) then
+  begin
+    ShowMessage('Silakan pilih Jurusan terlebih dahulu.');
+    Exit;
+  end;
+
+
+  begin
+    jurusanID := DBLookupComboBox2.KeyValue;
+
+    ShowMessage('KeyValue: ' + IntToStr(jurusanID));
+  end;
+
+
+  if jurusan_zq.Locate('id_jurusan', DBLookupComboBox2.KeyValue, []) then
+    begin
+    mahasiswa_zq.SQL.Clear;
+    mahasiswa_zq.SQL.Add(
+      'INSERT INTO customer ( nama_mhs,alamat,jns_kelamin,id_jurusan) ' +
+      'VALUES (  :nama_mhs,:alamat,:jns_kelamin,:id_jurusan)'
+    );
+    mahasiswa_zq.Params.ParamByName('nama_mhs').AsString := F_nama_mhs.Text;
+    mahasiswa_zq.Params.ParamByName('alamat').AsString := F_alamat.Text;
+    mahasiswa_zq.Params.ParamByName('jns_kelamin').AsString := F_jns_kelamin.Text;
+    mahasiswa_zq.Params.ParamByName('id_jurusan').AsInteger := jurusanID;
+   end
+  else
+    begin
+      ShowMessage('Jurusan tidak ditemukan dengan ID: ' + VarToStr(DBLookupComboBox2.KeyValue));
+    end;
+      try
+        mahasiswa_zq.ExecSQL;
+        ShowMessage('Data berhasil ditambahkan!');
+      except
+        on E: Exception do
+          ShowMessage('Error: ' + E.Message);
+      end;
+
+
+  mahasiswa_zq.Close;
+  mahasiswa_zq.SQL.Clear;
+  mahasiswa_zq.SQL.Add('SELECT * FROM customer');
+  mahasiswa_zq.Open;
+
+  F_nama_mhs.Clear;
+  F_alamat.Clear;
+  F_jns_kelamin.Clear;
+end;
+
+
+
+procedure TFCustomer.btn_save_origin_schoolClick(Sender: TObject);
+begin
+ if not ZConn.Connected then
+    ZConn.Connected := True;
+
+  mahasiswa_zq.SQL.Clear;
+  mahasiswa_zq.SQL.Add(
+    'INSERT INTO origin_schools ( name) ' +
+    'VALUES (  :name)'
+  );
+  mahasiswa_zq.Params.ParamByName('name').AsString := F_nama.Text;
+  try
+    mahasiswa_zq.ExecSQL;
+    ShowMessage('Data berhasil ditambahkan!');
+  except
+    on E: Exception do
+      ShowMessage('Error: ' + E.Message);
+  end;
+
+  mahasiswa_zq.Close;
+  mahasiswa_zq.SQL.Clear;
+  mahasiswa_zq.SQL.Add('SELECT * FROM origin_schools');
+  mahasiswa_zq.Open;
+
+  F_nama.Clear;
+end;
+
+procedure TFCustomer.logout(Sender: TObject);
+begin
+FSign_in.uname.Clear;
+FSign_in.pwd.Clear;
+FSign_in.Show;
+
+FSign_in.login_zq.First;
+FCustomer.Close;
+end;
+
+procedure TFCustomer.DBLookupComboBox2CloseUp(Sender: TObject);
+begin
+  if VarIsNull(DBLookupComboBox2.KeyValue) then
+  begin
+    ShowMessage('Silakan pilih sekolah yang valid.');
+    DBLookupComboBox2.KeyValue := Null;
+    Exit;
+  end;
+
+  if not mahasiswa_zq.Locate('id', DBLookupComboBox2.KeyValue, []) then
+  begin
+    ShowMessage('Sekolah tidak ditemukan. Silakan pilih sekolah yang valid.');
+    DBLookupComboBox2.KeyValue := Null;
+  end;
+end;
+
+end.
